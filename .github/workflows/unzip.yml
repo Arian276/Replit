@@ -1,0 +1,41 @@
+name: Unzip Zips
+
+on:
+  workflow_dispatch:   # lo podés correr manualmente
+  push:
+    branches: [ main ]
+    paths:
+      - '*.zip'
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extraer BarrileteCosmicTV.zip
+        run: |
+          if [ -f BarrileteCosmicTV.zip ]; then
+            rm -rf extracted1
+            unzip -o BarrileteCosmicTV.zip -d extracted1
+            rsync -a extracted1/ .
+            rm -rf extracted1 BarrileteCosmicTV.zip
+          fi
+
+      - name: Extraer scripts.zip
+        run: |
+          if [ -f scripts.zip ]; then
+            rm -rf extracted2
+            unzip -o scripts.zip -d extracted2
+            rsync -a extracted2/ .
+            rm -rf extracted2 scripts.zip
+          fi
+
+      - name: Commit de los archivos extraídos
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add .
+          git commit -m "Extraídos BarrileteCosmicTV.zip y scripts.zip" || echo "No hay cambios"
+          git push
