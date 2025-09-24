@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BarrileteCosmico TV - Control Total</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+        }
+        
+        .modern-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--gray-200);
+            transition: all 0.2s ease;
+        }
+        
+        .modern-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .btn-danger {
+            background: var(--error);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 20px;
+            gap: 4px;
+        }
+        
+        .badge-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .badge-error { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+        .badge-warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .badge-live { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+        
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--error);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .modern-input {
+            background: white;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--gray-900);
+            transition: all 0.2s ease;
+            width: 100%;
+            font-size: 14px;
+        }
+        
+        .modern-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .modern-select {
+            background: white;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--gray-900);
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .section-divider {
+            border-top: 1px solid var(--gray-200);
+            margin: 32px 0;
+        }
+        
+        .color-picker {
+            width: 60px;
+            height: 40px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body x-data="fullControlPanel()">
+    <!-- 🔐 MODAL DE AUTENTICACIÓN -->
+    <div x-show="!authenticated" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">🔐 Panel de Administración</h2>
+            <p class="text-gray-600 mb-6">Ingresa la clave de administración para acceder al control total de BarrileteCosmico TV.</p>
+            <div class="space-y-4">
+                <input x-model="apiKey" type="password" class="modern-input" placeholder="Clave de administración" @keyup.enter="authenticate()">
+                <button @click="authenticate()" :disabled="!apiKey" class="btn-primary w-full">
+                    <i class="fas fa-unlock"></i>
+                    Acceder
+                </button>
+            </div>
+            <div x-show="authError" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p class="text-red-600 text-sm" x-text="authError"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎯 HEADER -->
+    <header x-show="authenticated" class="bg-white border-b border-gray-200">
+        <div class="dashboard-container">
+            <div class="flex items-center justify-between py-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <span class="text-white text-xl">🚀</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">BarrileteCosmico TV</h1>
+                        <p class="text-gray-500 text-sm">Control Total de la Aplicación</p>
+                        <p class="text-xs text-gray-400">Package: com.barriletecosmicotv | v2.0-CHAT-FIXED</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-2">
+                        <div class="live-dot"></div>
+                        <span class="text-sm text-gray-600">Sistema Activo</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-gray-900" x-text="stats.totalChannels">0</div>
+                            <div class="text-xs text-gray-500">Canales</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-indigo-600" x-text="stats.totalViewers">0</div>
+                            <div class="text-xs text-gray-500">Usuarios</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-green-600" x-text="stats.fcm?.totalTokens || 0">0</div>
+                            <div class="text-xs text-gray-500">Dispositivos</div>
+                        </div>
+                    </div>
+                    <button @click="logout()" class="btn-secondary">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 🎯 NAVEGACIÓN -->
+    <nav x-show="authenticated" class="border-b border-gray-200 bg-white">
+        <div class="dashboard-container">
+            <div class="flex gap-8 py-4 overflow-x-auto">
+                <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-gray-700'" class="flex items-center gap-2 pb-4 border-b-2 transition-colors whitespace-nowrap">
+                    <i class="fas fa-chart-line"></i><span>Dashboard</span>
+                </button>
+                <button @click="activeTab = 'app-config'" :class="activeTab === 'app-config' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-gray-700'" class="flex items-center gap-2 pb-4 border-b-2 transition-colors whitespace-nowrap">
+                    <i class="fas fa-mobile-alt"></i><span>Configuración App</span>
+                </button>
+                <button @click="activeTab = 'colors-design'" :class="activeTab === 'colors-design' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-gray-700'" class="flex items-center gap-2 pb-4 border-b-2 transition-colors whitespace-nowrap">
+                    <i class="fas fa-palette"></i><span>Colores & Diseño</span>
+                </button>
+                <button @click="activeTab = 'text-content'" :class="activeTab === 'text-content' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-gray-700'" class="flex items-center gap-2 pb-4 border-b-2 transition-colors whitespace-nowrap">
+                    <i class="fas fa-font"></i><span>Textos & Contenido</span>
+                </button>
+                <button @click="activeTab = 'channels'" :class="activeTab === 'channels' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-gray-700'" class="flex items-center gap-2 pb-4 border-b-2 transition-colors whitespace-nowrap">
+                    <i class="fas fa-tv"></i><span>Canales</span>
+                </button>
+                <button @click="activeTab = 'notifications'" :class="activeTab === 'notifications' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-gray-700'" class="flex items-center gap-2 pb-4 border-b-2 transition-colors whitespace-nowrap">
+                    <i class="fas fa-bell"></i><span>Notificaciones</span>
+                </button>
+                <button @click="activeTab = 'backends'" :class="activeTab === 'backends' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-gray-700'" class="flex items-center gap-2 pb-4 border-b-2 transition-colors whitespace-nowrap">
+                    <i class="fas fa-server"></i><span>Múltiples Backends</span>
+                </button>
+                <button @click="activeTab = 'apk-download'" :class="activeTab === 'apk-download' ? 'text-indigo-600 border-indigo-600' : 'text-gray-500 border-transparent hover:text-gray-700'" class="flex items-center gap-2 pb-4 border-b-2 transition-colors whitespace-nowrap">
+                    <i class="fas fa-download"></i><span>Descargar APK</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 🎮 CONTENIDO PRINCIPAL -->
+    <main x-show="authenticated" class="dashboard-container">
+        <!-- 📊 DASHBOARD TAB -->
+        <div x-show="activeTab === 'dashboard'" class="space-y-8">
+            <div class="grid-4">
+                <div class="modern-card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">Canales Totales</p>
+                            <p class="text-2xl font-bold text-gray-900" x-text="stats.totalChannels">0</p>
+                            <div class="badge badge-success mt-2">
+                                <i class="fas fa-arrow-up text-xs"></i>
+                                <span>Activos</span>
+                            </div>
+                        </div>
+                        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tv text-indigo-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modern-card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">Usuarios Conectados</p>
+                            <p class="text-2xl font-bold text-gray-900" x-text="stats.totalViewers">0</p>
+                            <div class="badge badge-live mt-2">
+                                <div class="live-dot"></div>
+                                <span>En vivo</span>
+                            </div>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modern-card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">Firebase FCM</p>
+                            <p class="text-2xl font-bold text-gray-900" x-text="stats.fcm?.totalTokens || 0">0</p>
+                            <div class="badge" :class="stats.fcm?.enabled ? 'badge-success' : 'badge-warning'" style="margin-top: 8px;">
+                                <span x-text="stats.fcm?.enabled ? 'Activo' : 'Desactivado'">-</span>
+                            </div>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mobile text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modern-card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">Backend Status</p>
+                            <p class="text-2xl font-bold text-green-600">ONLINE</p>
+                            <div class="badge badge-success mt-2">
+                                <span>Puerto 5000</span>
+                            </div>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-server text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📱 CONFIGURACIÓN APP TAB -->
+        <div x-show="activeTab === 'app-config'" class="space-y-8">
+            <h2 class="text-2xl font-bold text-gray-900">Configuración de la Aplicación</h2>
+            
+            <div class="modern-card p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Información General</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la App</label>
+                        <input x-model="appConfig.app.name" type="text" class="modern-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Versión</label>
+                        <input x-model="appConfig.app.version" type="text" class="modern-input">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Slogan</label>
+                        <input x-model="appConfig.app.tagline" type="text" class="modern-input">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                        <textarea x-model="appConfig.app.description" rows="3" class="modern-input"></textarea>
+                    </div>
+                </div>
+                <button @click="saveAppConfig()" class="btn-primary mt-4">
+                    <i class="fas fa-save"></i>
+                    Guardar Configuración
+                </button>
+            </div>
+
+            <div class="modern-card p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Funcionalidades</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-900">Chat en Vivo</p>
+                            <p class="text-sm text-gray-500">Habilitar chat en streams</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input x-model="appConfig.features.chatEnabled" type="checkbox" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-900">Likes</p>
+                            <p class="text-sm text-gray-500">Sistema de likes en videos</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input x-model="appConfig.features.likesEnabled" type="checkbox" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-900">Chromecast</p>
+                            <p class="text-sm text-gray-500">Casting a TV</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input x-model="appConfig.features.castingEnabled" type="checkbox" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                </div>
+                <button @click="saveAppConfig()" class="btn-primary mt-4">
+                    <i class="fas fa-save"></i>
+                    Guardar Funcionalidades
+                </button>
+            </div>
+        </div>
+
+        <!-- 🎨 COLORES & DISEÑO TAB -->
+        <div x-show="activeTab === 'colors-design'" class="space-y-8">
+            <h2 class="text-2xl font-bold text-gray-900">Colores y Diseño de la App</h2>
+            
+            <div class="modern-card p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Paleta de Colores</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Color Primario</label>
+                        <div class="flex items-center gap-3">
+                            <input x-model="appConfig.theme.primary" type="color" class="color-picker">
+                            <input x-model="appConfig.theme.primary" type="text" class="modern-input flex-1">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Color Secundario</label>
+                        <div class="flex items-center gap-3">
+                            <input x-model="appConfig.theme.secondary" type="color" class="color-picker">
+                            <input x-model="appConfig.theme.secondary" type="text" class="modern-input flex-1">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Color de Acento</label>
+                        <div class="flex items-center gap-3">
+                            <input x-model="appConfig.theme.accent" type="color" class="color-picker">
+                            <input x-model="appConfig.theme.accent" type="text" class="modern-input flex-1">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Fondo Principal</label>
+                        <div class="flex items-center gap-3">
+                            <input x-model="appConfig.theme.background" type="color" class="color-picker">
+                            <input x-model="appConfig.theme.background" type="text" class="modern-input flex-1">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Superficie/Cards</label>
+                        <div class="flex items-center gap-3">
+                            <input x-model="appConfig.theme.surface" type="color" class="color-picker">
+                            <input x-model="appConfig.theme.surface" type="text" class="modern-input flex-1">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Texto Principal</label>
+                        <div class="flex items-center gap-3">
+                            <input x-model="appConfig.theme.textPrimary" type="color" class="color-picker">
+                            <input x-model="appConfig.theme.textPrimary" type="text" class="modern-input flex-1">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Indicador VIVO</label>
+                        <div class="flex items-center gap-3">
+                            <input x-model="appConfig.theme.liveIndicator" type="color" class="color-picker">
+                            <input x-model="appConfig.theme.liveIndicator" type="text" class="modern-input flex-1">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Admin Chat</label>
+                        <div class="flex items-center gap-3">
+                            <input x-model="appConfig.theme.adminColor" type="color" class="color-picker">
+                            <input x-model="appConfig.theme.adminColor" type="text" class="modern-input flex-1">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-divider"></div>
+                
+                <div class="flex items-center gap-4">
+                    <button @click="previewColors()" class="btn-secondary">
+                        <i class="fas fa-eye"></i>
+                        Vista Previa
+                    </button>
+                    <button @click="resetToDefaults()" class="btn-secondary">
+                        <i class="fas fa-undo"></i>
+                        Restaurar Por Defecto
+                    </button>
+                    <button @click="saveColors()" class="btn-primary">
+                        <i class="fas fa-save"></i>
+                        Aplicar Colores
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✏️ TEXTOS & CONTENIDO TAB -->
+        <div x-show="activeTab === 'text-content'" class="space-y-8">
+            <h2 class="text-2xl font-bold text-gray-900">Textos y Contenido de la App</h2>
+            
+            <div class="modern-card p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Pantalla Principal</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Título Principal</label>
+                        <input x-model="appConfig.strings.home.welcomeTitle" type="text" class="modern-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Subtítulo</label>
+                        <input x-model="appConfig.strings.home.welcomeSubtitle" type="text" class="modern-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Placeholder Búsqueda</label>
+                        <input x-model="appConfig.strings.home.searchPlaceholder" type="text" class="modern-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Mensaje Sin Canales</label>
+                        <input x-model="appConfig.strings.home.noChannelsMessage" type="text" class="modern-input">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modern-card p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Pantalla de Stream</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Título del Chat</label>
+                        <input x-model="appConfig.strings.stream.chatTitle" type="text" class="modern-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Placeholder Chat</label>
+                        <input x-model="appConfig.strings.stream.chatPlaceholder" type="text" class="modern-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Etiqueta Espectadores</label>
+                        <input x-model="appConfig.strings.stream.viewersLabel" type="text" class="modern-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Texto EN VIVO</label>
+                        <input x-model="appConfig.strings.stream.liveLabel" type="text" class="modern-input">
+                    </div>
+                </div>
+            </div>
+            
+            <button @click="saveTexts()" class="btn-primary">
+                <i class="fas fa-save"></i>
+                Guardar Textos
+            </button>
+        </div>
+
+        <!-- 📺 CANALES TAB -->
+        <div x-show="activeTab === 'channels'" class="space-y-6">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-bold text-gray-900">Gestión de Canales</h2>
+                <div class="flex gap-3">
+                    <button @click="refreshChannels()" class="btn-secondary">
+                        <i class="fas fa-sync"></i>
+                        Actualizar
+                    </button>
+                    <button @click="showAddChannelModal = true" class="btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Agregar Canal
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Lista de canales existente -->
+            <div class="modern-card p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Canales Activos</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <template x-for="channel in channels" :key="channel.id">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-start justify-between mb-3">
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-900" x-text="channel.title"></h4>
+                                    <p class="text-sm text-gray-500" x-text="channel.category"></p>
+                                </div>
+                                <div x-show="channel.isLive" class="badge badge-live">EN VIVO</div>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-600" x-text="`${channel.viewerCount || 0} espectadores`"></span>
+                                <button @click="deleteChannel(channel.id)" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔔 NOTIFICACIONES TAB -->
+        <div x-show="activeTab === 'notifications'" class="space-y-6">
+            <h2 class="text-2xl font-bold text-gray-900">Sistema de Notificaciones Push</h2>
+            
+            <div class="grid-4">
+                <div class="modern-card p-6">
+                    <h3 class="text-sm text-gray-500 mb-2">Estado Firebase</h3>
+                    <div class="text-lg font-bold" :class="stats.fcm?.enabled ? 'text-green-600' : 'text-orange-600'" x-text="stats.fcm?.enabled ? 'ACTIVO' : 'SIMULACIÓN'">-</div>
+                </div>
+                <div class="modern-card p-6">
+                    <h3 class="text-sm text-gray-500 mb-2">Dispositivos</h3>
+                    <div class="text-lg font-bold text-gray-900" x-text="stats.fcm?.totalTokens || 0">0</div>
+                </div>
+                <div class="modern-card p-6">
+                    <h3 class="text-sm text-gray-500 mb-2">Enviadas Hoy</h3>
+                    <div class="text-lg font-bold text-gray-900" x-text="stats.notificationsSent || 0">0</div>
+                </div>
+                <div class="modern-card p-6">
+                    <button @click="sendTestNotification()" :disabled="loading" class="btn-primary w-full">
+                        <i class="fas fa-paper-plane"></i>
+                        <span x-text="loading ? 'Enviando...' : 'Prueba FCM'"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="modern-card p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Enviar Notificación Push</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Título</label>
+                        <input x-model="notificationForm.title" type="text" class="modern-input" placeholder="Título de la notificación">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+                        <select x-model="notificationForm.type" class="modern-select">
+                            <option value="info">Información</option>
+                            <option value="success">Éxito</option>
+                            <option value="warning">Advertencia</option>
+                            <option value="error">Error</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Mensaje</label>
+                        <textarea x-model="notificationForm.message" rows="3" class="modern-input" placeholder="Contenido del mensaje..."></textarea>
+                    </div>
+                    <div class="md:col-span-2">
+                        <button @click="sendNotification()" :disabled="loading" class="btn-primary">
+                            <i class="fas fa-send"></i>
+                            <span x-text="loading ? 'Enviando...' : 'Enviar a Todos'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🖥️ MÚLTIPLES BACKENDS TAB -->
+        <div x-show="activeTab === 'backends'" class="space-y-6">
+            <h2 class="text-2xl font-bold text-gray-900">Gestión de Múltiples Backends</h2>
+            
+            <div class="modern-card p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Backend Actual</h3>
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <div>
+                            <p class="font-medium text-green-800">Backend Principal Activo</p>
+                            <p class="text-sm text-green-600" x-text="currentBackendUrl">https://tu-replit-backend.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modern-card p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Agregar Nuevo Backend</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Backend</label>
+                        <input x-model="newBackend.name" type="text" class="modern-input" placeholder="Backend Secundario">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">URL del Backend</label>
+                        <input x-model="newBackend.url" type="url" class="modern-input" placeholder="https://mi-otro-backend.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+                        <input x-model="newBackend.apiKey" type="password" class="modern-input" placeholder="Clave API del backend">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Prioridad</label>
+                        <select x-model="newBackend.priority" class="modern-select">
+                            <option value="primary">Principal</option>
+                            <option value="secondary">Secundario</option>
+                            <option value="backup">Respaldo</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <button @click="addBackend()" class="btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Agregar Backend
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modern-card p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Backends Configurados</h3>
+                <div class="space-y-3">
+                    <template x-for="backend in backends" :key="backend.id">
+                        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                            <div>
+                                <p class="font-medium text-gray-900" x-text="backend.name"></p>
+                                <p class="text-sm text-gray-500" x-text="backend.url"></p>
+                                <span class="badge" :class="backend.status === 'active' ? 'badge-success' : 'badge-error'" x-text="backend.status === 'active' ? 'Activo' : 'Inactivo'"></span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button @click="testBackend(backend.id)" class="btn-secondary">
+                                    <i class="fas fa-play"></i>
+                                    Test
+                                </button>
+                                <button @click="removeBackend(backend.id)" class="btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📱 DESCARGAR APK TAB -->
+        <div x-show="activeTab === 'apk-download'" class="space-y-6">
+            <h2 class="text-2xl font-bold text-gray-900">Descargar APK Conectada</h2>
+            
+            <div class="modern-card p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">APK Final Configurada</h3>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mobile-alt text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-blue-900">BarrileteCosmico TV</h4>
+                            <p class="text-blue-700">Versión 2.0-CHAT-FIXED</p>
+                            <p class="text-sm text-blue-600">Conectada a este backend</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-blue-600" x-text="stats.totalChannels">70</p>
+                            <p class="text-sm text-blue-500">Canales</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-blue-600">✅</p>
+                            <p class="text-sm text-blue-500">Firebase FCM</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-blue-600">✅</p>
+                            <p class="text-sm text-blue-500">Chat Real</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-blue-600">✅</p>
+                            <p class="text-sm text-blue-500">Conectada</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <button @click="downloadAPK()" class="btn-primary flex-1">
+                            <i class="fas fa-download"></i>
+                            Descargar APK (v2.0)
+                        </button>
+                        <button @click="generateQR()" class="btn-secondary">
+                            <i class="fas fa-qrcode"></i>
+                            QR Code
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modern-card p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Información Técnica</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="font-medium text-gray-700">Package Name:</p>
+                        <p class="text-gray-600">com.barriletecosmicotv</p>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-700">Version Code:</p>
+                        <p class="text-gray-600">2</p>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-700">Backend URL:</p>
+                        <p class="text-gray-600" x-text="currentBackendUrl">-</p>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-700">Firebase Project:</p>
+                        <p class="text-gray-600">barriletecosmicotv</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function fullControlPanel() {
+            return {
+                authenticated: false,
+                apiKey: '',
+                authError: '',
+                activeTab: 'dashboard',
+                loading: false,
+                currentBackendUrl: window.location.origin,
+                
+                stats: {
+                    totalChannels: 0,
+                    totalViewers: 0,
+                    notificationsSent: 0,
+                    fcm: { totalTokens: 0, enabled: false }
+                },
+                
+                appConfig: {
+                    app: {
+                        name: "BarrileteCosmico TV",
+                        version: "2.0-CHAT-FIXED",
+                        tagline: "Fútbol argentino • Pasión • En vivo",
+                        description: "La mejor plataforma de streaming deportivo argentino"
+                    },
+                    theme: {
+                        primary: "#36B5D8",
+                        secondary: "#F77A2B", 
+                        background: "#0C1218",
+                        surface: "#1A242E",
+                        accent: "#E740B7",
+                        textPrimary: "#F5F5F5",
+                        liveIndicator: "#10B981",
+                        adminColor: "#E83D3D"
+                    },
+                    strings: {
+                        home: {
+                            welcomeTitle: "Barrilete Cósmico",
+                            welcomeSubtitle: "Fútbol argentino • Pasión • En vivo",
+                            searchPlaceholder: "Buscar canales deportivos...",
+                            noChannelsMessage: "No hay canales disponibles"
+                        },
+                        stream: {
+                            chatTitle: "⚽ Chat en vivo",
+                            chatPlaceholder: "Escribe tu mensaje...",
+                            viewersLabel: "espectadores",
+                            liveLabel: "EN VIVO"
+                        }
+                    },
+                    features: {
+                        chatEnabled: true,
+                        likesEnabled: true,
+                        castingEnabled: true
+                    }
+                },
+                
+                channels: [],
+                backends: [],
+                newBackend: { name: '', url: '', apiKey: '', priority: 'secondary' },
+                
+                notificationForm: {
+                    title: '',
+                    message: '',
+                    type: 'info'
+                },
+
+                async init() {
+                    // Intentar autenticación automática si hay API key guardada
+                    const savedKey = localStorage.getItem('admin_api_key');
+                    if (savedKey) {
+                        this.apiKey = savedKey;
+                        await this.authenticate();
+                    }
+                },
+
+                async authenticate() {
+                    if (!this.apiKey) {
+                        this.authError = 'Ingresa la clave de administración';
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch('/api/admin/stats', {
+                            headers: { 'X-API-Key': this.apiKey }
+                        });
+                        
+                        if (response.ok) {
+                            this.authenticated = true;
+                            this.authError = '';
+                            localStorage.setItem('admin_api_key', this.apiKey);
+                            await this.loadAllData();
+                        } else {
+                            this.authError = 'Clave de administración incorrecta';
+                        }
+                    } catch (error) {
+                        this.authError = 'Error de conexión con el servidor';
+                    }
+                },
+
+                logout() {
+                    this.authenticated = false;
+                    this.apiKey = '';
+                    localStorage.removeItem('admin_api_key');
+                },
+
+                async loadAllData() {
+                    await Promise.all([
+                        this.loadStats(),
+                        this.loadChannels(),
+                        this.loadAppConfig(),
+                        this.loadBackends()
+                    ]);
+                },
+
+                async loadStats() {
+                    try {
+                        const response = await fetch('/api/admin/stats', {
+                            headers: { 'X-API-Key': this.apiKey }
+                        });
+                        if (response.ok) {
+                            this.stats = await response.json();
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                },
+
+                async loadChannels() {
+                    try {
+                        const response = await fetch('/api/streams');
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.channels = data.channels || [];
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                },
+
+                async loadAppConfig() {
+                    try {
+                        const response = await fetch('/api/config/ui');
+                        if (response.ok) {
+                            const config = await response.json();
+                            this.appConfig = { ...this.appConfig, ...config };
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                },
+
+                async loadBackends() {
+                    // Cargar configuración de backends (simulado)
+                    this.backends = [
+                        {
+                            id: 1,
+                            name: 'Backend Principal',
+                            url: this.currentBackendUrl,
+                            status: 'active',
+                            priority: 'primary'
+                        }
+                    ];
+                },
+
+                async saveAppConfig() {
+                    try {
+                        this.loading = true;
+                        const response = await fetch('/api/ui-config', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-API-Key': this.apiKey
+                            },
+                            body: JSON.stringify(this.appConfig)
+                        });
+                        
+                        if (response.ok) {
+                            this.showSuccess('Configuración guardada exitosamente');
+                        } else {
+                            this.showError('Error guardando configuración');
+                        }
+                    } catch (error) {
+                        this.showError('Error de conexión');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async saveColors() {
+                    try {
+                        this.loading = true;
+                        const response = await fetch('/api/ui-config/theme', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-API-Key': this.apiKey
+                            },
+                            body: JSON.stringify({ theme: this.appConfig.theme })
+                        });
+                        
+                        if (response.ok) {
+                            this.showSuccess('Colores aplicados a la app Android');
+                        } else {
+                            this.showError('Error aplicando colores');
+                        }
+                    } catch (error) {
+                        this.showError('Error de conexión');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async saveTexts() {
+                    try {
+                        this.loading = true;
+                        const response = await fetch('/api/ui-config/strings', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-API-Key': this.apiKey
+                            },
+                            body: JSON.stringify({ strings: this.appConfig.strings })
+                        });
+                        
+                        if (response.ok) {
+                            this.showSuccess('Textos actualizados en la app');
+                        } else {
+                            this.showError('Error actualizando textos');
+                        }
+                    } catch (error) {
+                        this.showError('Error de conexión');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async refreshChannels() {
+                    this.loading = true;
+                    await this.loadChannels();
+                    await this.loadStats();
+                    this.loading = false;
+                    this.showSuccess('Canales actualizados');
+                },
+
+                async deleteChannel(channelId) {
+                    if (!confirm('¿Eliminar este canal?')) return;
+                    
+                    try {
+                        const response = await fetch(`/api/admin/channels/${channelId}`, {
+                            method: 'DELETE',
+                            headers: { 'X-API-Key': this.apiKey }
+                        });
+                        if (response.ok) {
+                            await this.loadChannels();
+                            this.showSuccess('Canal eliminado');
+                        }
+                    } catch (error) {
+                        this.showError('Error eliminando canal');
+                    }
+                },
+
+                async sendTestNotification() {
+                    this.loading = true;
+                    try {
+                        const response = await fetch('/api/admin/notifications/test', {
+                            method: 'POST',
+                            headers: { 'X-API-Key': this.apiKey }
+                        });
+                        if (response.ok) {
+                            this.showSuccess('Notificación de prueba enviada');
+                        } else {
+                            this.showError('Error enviando prueba');
+                        }
+                    } catch (error) {
+                        this.showError('Error de conexión');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async sendNotification() {
+                    if (!this.notificationForm.title || !this.notificationForm.message) {
+                        this.showError('Título y mensaje requeridos');
+                        return;
+                    }
+                    
+                    this.loading = true;
+                    try {
+                        const response = await fetch('/api/admin/notifications/send', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-API-Key': this.apiKey
+                            },
+                            body: JSON.stringify(this.notificationForm)
+                        });
+                        
+                        const result = await response.json();
+                        if (response.ok) {
+                            this.showSuccess(`Notificación enviada a ${result.recipients || 0} dispositivos`);
+                            this.notificationForm = { title: '', message: '', type: 'info' };
+                        } else {
+                            this.showError(result.error || 'Error enviando');
+                        }
+                    } catch (error) {
+                        this.showError('Error de conexión');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                addBackend() {
+                    if (!this.newBackend.name || !this.newBackend.url) {
+                        this.showError('Nombre y URL requeridos');
+                        return;
+                    }
+                    
+                    const backend = {
+                        id: Date.now(),
+                        ...this.newBackend,
+                        status: 'inactive'
+                    };
+                    
+                    this.backends.push(backend);
+                    this.newBackend = { name: '', url: '', apiKey: '', priority: 'secondary' };
+                    this.showSuccess('Backend agregado');
+                },
+
+                removeBackend(id) {
+                    this.backends = this.backends.filter(b => b.id !== id);
+                    this.showSuccess('Backend eliminado');
+                },
+
+                async testBackend(id) {
+                    const backend = this.backends.find(b => b.id === id);
+                    try {
+                        const response = await fetch(`${backend.url}/health`);
+                        if (response.ok) {
+                            backend.status = 'active';
+                            this.showSuccess(`Backend ${backend.name} está funcionando`);
+                        } else {
+                            backend.status = 'inactive';
+                            this.showError(`Backend ${backend.name} no responde`);
+                        }
+                    } catch (error) {
+                        backend.status = 'inactive';
+                        this.showError(`Error conectando a ${backend.name}`);
+                    }
+                },
+
+                downloadAPK() {
+                    // Descargar APK conectada al backend actual
+                    window.open('/api/download/apk', '_blank');
+                    this.showSuccess('Descargando APK conectada al backend');
+                },
+
+                generateQR() {
+                    // Generar QR para descarga directa
+                    const qrData = `${this.currentBackendUrl}/api/download/apk`;
+                    window.open(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`, '_blank');
+                },
+
+                previewColors() {
+                    this.showSuccess('Vista previa aplicada temporalmente');
+                },
+
+                resetToDefaults() {
+                    this.appConfig.theme = {
+                        primary: "#36B5D8",
+                        secondary: "#F77A2B", 
+                        background: "#0C1218",
+                        surface: "#1A242E",
+                        accent: "#E740B7",
+                        textPrimary: "#F5F5F5",
+                        liveIndicator: "#10B981",
+                        adminColor: "#E83D3D"
+                    };
+                    this.showSuccess('Colores restaurados por defecto');
+                },
+
+                showSuccess(message) {
+                    // Implementar notificación de éxito
+                    alert(`✅ ${message}`);
+                },
+
+                showError(message) {
+                    // Implementar notificación de error  
+                    alert(`❌ ${message}`);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
