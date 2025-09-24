@@ -1,7 +1,7 @@
-name: Unzip Zips
+name: Unzip and Commit
 
 on:
-  workflow_dispatch:   # lo podés correr manualmente
+  workflow_dispatch:   # se ejecuta a mano desde Actions
   push:
     branches: [ main ]
     paths:
@@ -10,32 +10,30 @@ on:
 jobs:
   unzip:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # 🔑 da permiso al workflow para hacer push
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Extraer BarrileteCosmicTV.zip
+      - name: Descomprimir BarrileteCosmicTV.zip
         run: |
           if [ -f BarrileteCosmicTV.zip ]; then
-            rm -rf extracted1
-            unzip -o BarrileteCosmicTV.zip -d extracted1
-            rsync -a extracted1/ .
-            rm -rf extracted1 BarrileteCosmicTV.zip
+            unzip -o BarrileteCosmicTV.zip -d .
+            rm BarrileteCosmicTV.zip
           fi
 
-      - name: Extraer scripts.zip
+      - name: Descomprimir scripts.zip
         run: |
           if [ -f scripts.zip ]; then
-            rm -rf extracted2
-            unzip -o scripts.zip -d extracted2
-            rsync -a extracted2/ .
-            rm -rf extracted2 scripts.zip
+            unzip -o scripts.zip -d .
+            rm scripts.zip
           fi
 
-      - name: Commit de los archivos extraídos
+      - name: Commit y Push
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Extraídos BarrileteCosmicTV.zip y scripts.zip" || echo "No hay cambios"
+          git commit -m "Archivos descomprimidos en la raíz" || echo "No hay cambios"
           git push
